@@ -1,6 +1,7 @@
-const express = require('express');
-const connectDB = require('./config/db');
-require('dotenv').config();
+const express = require("express");
+const connectDB = require("./config/db");
+require("dotenv").config({ path: "./config/.env" });
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 const port = process.env.PORT;
@@ -9,11 +10,13 @@ const port = process.env.PORT;
 connectDB();
 
 app.use(express.json());
+//routes
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
+app.use("/api/users", userRoutes);
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
