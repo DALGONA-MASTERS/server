@@ -1,15 +1,15 @@
 const { Schema, model } = require('mongoose');
 
 const contributionSchema = new Schema({
+    event: {
+        type: Schema.Types.ObjectId,
+        ref: 'Event',
+        required: true
+    },
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    },
-    action: {
-        type: String,
-        required: true,
-        enum: ['trees_planted', 'waste_recycled', 'other_action']
     },
     value: {
         type: Number,
@@ -19,6 +19,10 @@ const contributionSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    actionType: {
+        type: String,
+        required: true
+    }
 });
 
 module.exports = model('Contribution', contributionSchema);
