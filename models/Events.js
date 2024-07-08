@@ -1,20 +1,17 @@
 const { Schema, model } = require("mongoose");
 
-const EventSchema = new Schema({
+const eventSchema = new Schema({
   title: {
     type: String,
     required: true,
   },
-  date: {
+  startDate: {
     type: Date,
-    required: true,
-  },
-  location: {
-    type: String,
     required: true,
   },
   endDate: {
     type: Date,
+    required: true,
   },
   description: {
     type: String,
@@ -31,6 +28,29 @@ const EventSchema = new Schema({
       ref: "User",
     },
   ],
+  participantsNumber: {
+    type: Number,
+    default: 0,
+  },
+  actionType: {
+    type: String,
+    required: true,
+    enum: ["trees_plantation", "waste_recycling", "beach_cleaning", "other"],
+  },
+  target: {
+    type: Number,
+    required: true,
+  },
+  progress: {
+    type: Number,
+    default: 0,
+  },
+  privacy: {
+    type: String,
+    required: true,
+    enum: ["public", "private"],
+    default: "public",
+  },
 });
 
-module.exports = model("Event", EventSchema);
+module.exports = model("Event", eventSchema);

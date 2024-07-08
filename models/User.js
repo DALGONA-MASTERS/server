@@ -22,9 +22,24 @@ const userSchema = new Schema({
   fullName: {
     type: String,
   },
+  bio: {
+    type: String,
+  },
+  liked: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
+  Events: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+    },
+  ],
 });
-// middleware to hash passwords before saving to db
 
+// middleware to hash passwords before saving to db
 userSchema.pre("save", async function (next) {
   const user = this;
 
