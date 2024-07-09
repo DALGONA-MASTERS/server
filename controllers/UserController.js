@@ -1,4 +1,5 @@
 const userModel = require("../models/User");
+const bcrypt = require("bcrypt");
 module.exports.getAll = async (req, res) => {
   try {
     const users = await userModel.find().select("-passord");
@@ -18,6 +19,9 @@ module.exports.getUser = async (req, res) => {
 };
 module.exports.updateUser = async (req, res) => {
   try {
+    if (req.body.password) {
+      req.body.passord = await bcrypt.hash(req.body.password, 10);
+    }
     const user = await userModel
       .findByIdAndUpdate(req.params.id, req.body, {
         new: true,

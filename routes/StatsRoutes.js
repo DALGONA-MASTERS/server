@@ -9,6 +9,6 @@ const router = require("express").Router();
 router.get('/', getStats);
 
 // Route to update statistics
-router.post('/update', updateStats);
+router.patch('/update', updateStats);
 
 module.exports = router;

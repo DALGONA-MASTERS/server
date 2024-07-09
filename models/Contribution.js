@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { boolean } = require('webidl-conversions');
 
 const contributionSchema = new Schema({
     event: {
@@ -22,6 +23,24 @@ const contributionSchema = new Schema({
     actionType: {
         type: String,
         required: true
+    },
+    validated:{
+        type: Boolean,
+        required: true,
+        default: false
+    }
+});
+
+contributionSchema.pre('validate', async function(next) {
+    try {
+        const event = await this.model('Event').findById(this.event);
+        if (!event) {
+            throw new Error('Événement associé non trouvé.');
+        }
+        this.actionType = event.actionType;
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 

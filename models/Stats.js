@@ -15,8 +15,8 @@ const statsSchema = new Schema({
     },
     actions: {
         type: Map,
-        of: Number,
-        default: {}
+        of: Schema.Types.Mixed, // Accepte n'importe quel type de valeur
+        default: new Map()
     }
 });
 

@@ -26,10 +26,18 @@ const eventSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
+    participantsNumber: {
+        type: Number,
+        default: 0,
+    },
     actionType: {
         type: String,
         required: true,
         enum: ['trees_plantation', 'waste_recycling', 'beach_cleaning', 'other']
+    },
+    unit: {
+        type: String,
+        required: true
     },
     target: {
         type: Number,
@@ -38,7 +46,20 @@ const eventSchema = new Schema({
     progress: {
         type: Number,
         default: 0
-    }
+    },
+    privacy: {
+        type: String,
+        required: true,
+        enum: ["public", "private"],
+        default: "public",
+    },
+    blacklist: [{
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        }
+    }]
 });
 
 module.exports = model('Event', eventSchema);

@@ -1,16 +1,20 @@
 const {
     addContribution,
     updateContribution,
-    getUserContributions
+    getUserContributions,
+    validateContribution,
+    getAllContributions
 } = require("../controllers/ContributionController");
 
 const { checkUser } = require("../middleware/AuthMiddleware");
 const router = require("express").Router();
 
-// Route for contributions
+
 router.post('/',checkUser, addContribution);
 router.put('/:contributionId',checkUser, updateContribution);
+router.post('/validate/:contributionId',checkUser, validateContribution);
+router.get('/user',checkUser, getUserContributions);
+router.get('/', getAllContributions);
 
-router.get('/',checkUser, getUserContributions);
 
 module.exports = router;

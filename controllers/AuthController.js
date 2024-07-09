@@ -19,12 +19,15 @@ module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await userModel.login(email, password);
+    if (!user)
+      return res.status(401).json({ message: "Invalid email or password" });
+    // send the user without sending the password
+
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, {
       expiresIn: maxAge,
     });
     res.cookie("jwt", token, { httpOnly: true, maxAge });
-
-    res.json({ message: "User logged in successfully" });
+    res.json({ user: { id: user._id, email: user.email } });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
