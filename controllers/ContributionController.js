@@ -113,31 +113,58 @@ exports.validateContribution = async (req, res) => {
 
 const updateGlobalStats = async (actionType, value) => {
     try {
-        let stats = await Stats.findOneAndUpdate(
-            {},
-            {
-                $inc: { [`actions.${actionType}.progress`]: value },
-                $currentDate: { lastModified: true }
-            },
-            { upsert: true, new: true }
-        );
-
-        // Vérifie si l'actionType existe déjà dans stats.actions, sinon l'initialise
-        if (!stats.actions[actionType]) {
-            stats.actions[actionType] = { progress: value };
+        // Trouver les statistiques globales existantes ou les créer si elles n'existent pas
+        let stats = await Stats.findOne({});
+        if (!stats) {
+            stats = new Stats();
         }
-        console.log(stats)
-        const progress = stats.actions[actionType].progress;
-        const target = stats.actions[actionType].target;
+        console.log(stats);
+        
+        actionType = String(actionType);
+
+        // Vérifiez que actionsMap est bien une Map et qu'elle contient actionType
+        let actionsMap = stats.actions;
+        if (!actionsMap) {
+            actionsMap = new Map();
+        }
+
+        if (!actionsMap.has(actionType)) {
+            console.warn(`Action type '${actionType}' not found in actionsMap.`);
+            return;
+        }
+
+        console.log(actionsMap.get(actionType).progress);
+        console.log(actionsMap.get(actionType).target);
+        console.log(actionsMap.get(actionType).unit);
+        console.log(actionsMap.get(actionType).value);
+
+        console.log("passed");
+
+        console.log(actionsMap);
+
+        // Calculer la valeur de l'action si possible
+        const progress = actionsMap.get(actionType).progress + value;
+        const target = actionsMap.get(actionType).target;
 
         // Éviter une division par zéro en vérifiant que target est défini et non nul
         if (target !== undefined && target !== 0) {
             const calculatedValue = progress / target;
-            stats.actions[actionType].value = calculatedValue;
+            const actionData = actionsMap.get(actionType);
+            if (actionData) {
+                actionData.value = calculatedValue;
+                actionData.progress = progress;
+                actionsMap.set(actionType, actionData);
+            } else {
+                // Handle case where action doesn't exist (optional)
+                console.warn(`Action type '${actionType}' not found in actionsMap.`);
+            }
         } else {
             console.warn(`La cible (target) pour l'action ${actionType} n'est pas définie ou est nulle.`);
         }
 
+        // Sauvegarder les statistiques mises à jour
+        stats.actions = actionsMap;
+        stats.markModified('actions');
         await stats.save();
 
         console.log(`Statistiques globales mises à jour pour ${actionType} avec la valeur ${value}.`);

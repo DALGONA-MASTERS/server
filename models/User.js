@@ -37,27 +37,23 @@ const userSchema = new Schema({
       ref: "Event",
     },
   ],
+  googleId: {
+    type: String,
+  },
 });
 
-// middleware to hash passwords before saving to db
-userSchema.pre("save", async function (next) {
-  const user = this;
-
-  user.password = await bcrypt.hash(user.password, 10);
-
-  next();
-});
 // adding login method
-userSchema.statics.login = async function (email, password) {
+userSchema.statics.login = async function(email, password) {
   const user = await this.findOne({ email });
   if (user) {
+
     const auth = await bcrypt.compare(password, user.password);
     if (auth) {
       return user;
     }
-    throw Error("incorrect password");
+    throw new Error("Incorrect password");
   }
-  throw Error("incorrect email");
+  throw new Error("Incorrect email");
 };
 
 module.exports = model("User", userSchema);
