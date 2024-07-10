@@ -29,7 +29,10 @@ module.exports.login = async (req, res) => {
 
     // in the headers add jwt with value token
     res.cookie("jwt", token, { httpOnly: true, maxAge });
+<<<<<<< HEAD:controllers/AuthController.js
 
+=======
+>>>>>>> a4499a909691ed513a890b7c7cae34ee18bdb0f2:controller/authController.js
     res.json({ user: { id: user._id, email: user.email } });
   } catch (err) {
     res.status(500).json({ message: err.message });
