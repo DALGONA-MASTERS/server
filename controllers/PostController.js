@@ -1,6 +1,6 @@
 const postModule = require("../models/Post");
 
-const { uploadPicture } = require("../uploadImages");
+const { uploadPicture } = require("../utils/uploadImages");
 module.exports.getAllPosts = async (req, res) => {
   try {
     const posts = await postModule.find({});
@@ -50,7 +50,7 @@ module.exports.updatePost = async (req, res) => {
     const post = await postModule.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
     // checking if the user is allowed to update
-    if (post.author.toString() !== req.user)
+    if (post.author.toString() !== req.user.id)
       return res
         .status(403)
         .json({ message: "Unauthorized to update this post" });
@@ -73,14 +73,14 @@ exports.likePost = async (req, res) => {
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     // Check
-    const hasLiked = post.likers.includes(req.user);
+    const hasLiked = post.likers.includes(req.user.id);
 
     // If the user has liked the post, remove the like, otherwise add it
     const updatedPost = await postModule.findByIdAndUpdate(
       req.params.id,
       hasLiked
-        ? { $pull: { likers: req.user }, $inc: { likesCount: -1 } }
-        : { $addToSet: { likers: req.user }, $inc: { likesCount: +1 } },
+        ? { $pull: { likers: req.user.id }, $inc: { likesCount: -1 } }
+        : { $addToSet: { likers: req.user.id }, $inc: { likesCount: +1 } },
       { new: true }
     );
 
@@ -93,7 +93,7 @@ module.exports.deletePost = async (req, res) => {
   try {
     const post = await postModule.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
-    if (post.author.toString() !== req.user)
+    if (post.author.toString() !== req.user.id)
       return res
         .status(403)
         .json({ message: "Unauthorized to update this post" });
