@@ -1,5 +1,6 @@
 const postModule = require("../models/Post");
 
+const { uploadPicture } = require("../uploadImages");
 module.exports.getAllPosts = async (req, res) => {
   try {
     const posts = await postModule.find({});
@@ -20,14 +21,30 @@ module.exports.getPostById = async (req, res) => {
 };
 
 module.exports.createPost = async (req, res) => {
-  const post = new postModule(req.body);
   try {
-    const result = await post.save();
-    res.status(201).json(result);
+    const author = req.user.id;
+    const { content } = req.body;
+    // log the req.file
+    if (req.file) {
+      const uploadUrl = await uploadPicture(req.file);
+      const newPost = new postModule({
+        content,
+        author,
+        picture: uploadUrl,
+      });
+      await newPost.save();
+      return res.json({ newPost });
+    } else {
+      const newPost = new postModule({ content, author });
+      await newPost.save();
+      return res.json({ newPost });
+    }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
+
 module.exports.updatePost = async (req, res) => {
   try {
     const post = await postModule.findById(req.params.id);

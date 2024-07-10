@@ -1,6 +1,7 @@
 const { isFullWidth } = require("validator");
 const userModel = require("../models/User");
 const bcrypt = require("bcrypt");
+
 module.exports.getAll = async (req, res) => {
   try {
     const users = await userModel.find().select("-passord");
@@ -38,16 +39,6 @@ module.exports.getLoggedInUser = async (req, res) => {
   }
 };
 
-
-module.exports.getUser = async (req, res) => {
-  try {
-    const user = await userModel.findById(req.params.id).select("-passord");
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 module.exports.updateUser = async (req, res) => {
   try {
     if (req.body.password) {

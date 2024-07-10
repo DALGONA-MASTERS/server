@@ -9,15 +9,20 @@ const eventRoutes = require('./routes/EventRoutes');
 const contributionRoutes = require('./routes/ContributionRoutes');
 const postRoutes = require('./routes/PostRoutes');
 const statsRoutes = require('./routes/StatsRoutes');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT;
+
 
 // DB connexion
 connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  exposedHeaders: ['jwt']
+}));
 
 // Routes
 app.use('/users', userRoutes);

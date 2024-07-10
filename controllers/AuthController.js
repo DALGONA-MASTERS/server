@@ -5,8 +5,7 @@ const sendVerificationCode = require("../utils/mailer");
 const bcrypt = require("bcrypt");
 const A2FModel = require('../models/A2F');
 
-const maxAge = 24 * 60 * 60 * 1000; // 1 day
-
+const maxAge = 24 * 60 * 60 * 1000 * 30; // 1 month
 
 // SignUp
 module.exports.signUp = async (req, res) => {
@@ -15,23 +14,15 @@ module.exports.signUp = async (req, res) => {
     let user = await userModel.findOne({ email });
 
     if (user) {
-      // Si l'utilisateur existe déjà, renvoyer un message d'erreur
       return res.status(400).json({ message: "User already exists. Please login instead." });
     }
-    // Generate verification code
     const verificationCode = generateRandomString(6);
-
-    // Hash the verification code before saving
     const hashedCode = await bcrypt.hash(verificationCode, 10);
-
-    // Hash the user password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save the verification code and user details in the database with expiration
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await A2FModel.create({ email, code: hashedCode, username, password: hashedPassword, expiresAt });
 
-    // Send the verification code via email
     await sendVerificationCode(email, verificationCode);
 
     res.status(201).json({ message: "Verification code sent to your email. Please verify to complete registration." });
@@ -62,7 +53,7 @@ module.exports.verifyA2FCode = async (req, res) => {
     await A2FModel.deleteOne({ email });
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, { expiresIn: maxAge });
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
     res.status(200).json({ user: { id: user._id, email: user.email, username: user.username } });
@@ -70,6 +61,7 @@ module.exports.verifyA2FCode = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -82,14 +74,17 @@ module.exports.login = async (req, res) => {
       expiresIn: maxAge,
     });
 
+    const userObj = user.toObject();
+    delete userObj.password;
+
     res.cookie("jwt", token, { httpOnly: true, maxAge });
-    res.json({ user: { id: user._id, email: user.email, username: user.username } });
+    // add token to json res
+    res.json({ user: userObj });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Fonction pour générer une chaîne de caractères aléatoire
 function generateRandomString(length) {
   const characters = '0123456789';
   let result = '';

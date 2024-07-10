@@ -53,12 +53,9 @@ const eventSchema = new Schema({
         enum: ["public", "private"],
         default: "public",
     },
-    blacklist: [{
-        user: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        }
+    blacklist: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'User' 
     }]
 });
 

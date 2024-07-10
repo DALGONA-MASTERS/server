@@ -2,7 +2,7 @@ const Event = require('../models/Event');
 const User = require("../models/User");
 
 exports.createEvent = async (req, res) => {
-    const { title, startDate, endDate, description, actionType, target,privacy } = req.body;
+    const { title, startDate, endDate, description, actionType, target, privacy } = req.body;
 
     if (!title || !startDate || !endDate || !description || !actionType || !target) {
         return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
@@ -37,20 +37,27 @@ exports.createEvent = async (req, res) => {
             target,
             unit: determineUnit(actionType), // Appeler une fonction pour déterminer l'unité en fonction de actionType
             createdBy: req.user.id,
-            participants: [req.user.id], // Add the owner to participants
-            participantsNumber: 1
+            participants: [req.user.id], // Ajouter le créateur aux participants
+            participantsNumber: 1,
+            privacy
         });
 
         await newEvent.save();
 
-        // Add the event to the user's list of events
+        // Ajouter l'événement à la liste des événements de l'utilisateur
         await User.findByIdAndUpdate(
             req.user.id,
             { $push: { events: newEvent._id } },
             { new: true }
         );
 
-        res.status(201).json(newEvent);
+        // Sauvegarder le nouvel événement
+        await newEvent.save();
+
+        // Recharger l'événement avec les noms des participants peuplés
+        const populatedEvent = await Event.findById(newEvent._id).populate('participants', 'name');
+
+        res.status(201).json(populatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).send(`Erreur Serveur lors de la création de l'événement.`);
@@ -63,7 +70,7 @@ exports.getAllEvents = async (req, res) => {
         if (events.length === 0) {
             return res.status(404).json({ message: 'Aucun événement trouvé.' });
         }
-        res.json(events);
+        res.status(200).json(events);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Erreur Serveur');
@@ -82,7 +89,7 @@ exports.joinEvent = async (req, res) => {
         
         // Check if the user is the author of the event
         if (event.createdBy.toString() === userId.toString()) {
-            return res.status(400).json({ message: "Vous êtes déjà participant. (créateur de l'event)" });
+            return res.status(400).json({ message: "Vous êtes déjà participant (créateur de l'événement)." });
         }
 
         if (event.participants.includes(userId)) {
@@ -101,19 +108,15 @@ exports.joinEvent = async (req, res) => {
                 $inc: { participantsNumber: 1 },
             },
             { new: true }
-        );
-
-        res.json(updatedEvent);
+        ).populate('participants', 'name'); // Populate participants with 'name'
 
         await User.findByIdAndUpdate(
             userId,
-            {
-                $push: { events: eventId },
-            },
+            { $push: { events: eventId } },
             { new: true }
-        ).catch((error) => {
-            return res.json({ error: error.message });
-        });
+        );
+
+        res.status(200).json(updatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Erreur Serveur");
@@ -131,8 +134,27 @@ exports.quitEvent = async (req, res) => {
             return res.status(404).json({ message: "Événement non trouvé." });
         }
 
+        const now = new Date();
+
         // Check if the user is the author of the event
         if (event.createdBy.toString() === userId.toString()) {
+            // Check if the event has started
+            if (event.startDate <= now) {
+                return res.status(400).json({ message: "Vous ne pouvez pas quitter l'événement car il a déjà commencé." });
+            }
+
+            // Check if the user is the only participant
+            if (event.participants.length === 1) {
+                // Delete the event as there are no other participants
+                const deletedEvent = event;
+                await event.deleteOne();
+
+                // Remove event from user's events
+                await User.findByIdAndUpdate(userId, { $pull: { events: eventId } });
+
+                return res.status(200).json(deletedEvent);
+            }
+
             if (!newOwnerId || !event.participants.includes(newOwnerId) || newOwnerId === userId) {
                 return res.status(400).json({ message: "Vous devez choisir un participant valide pour transférer l'ownership." });
             }
@@ -143,7 +165,7 @@ exports.quitEvent = async (req, res) => {
 
             // Remove user from event participants
             await Event.findByIdAndUpdate(
-                { _id: eventId },
+                eventId,
                 {
                     $pull: { participants: userId },
                     $inc: { participantsNumber: -1 },
@@ -154,7 +176,10 @@ exports.quitEvent = async (req, res) => {
             // Remove event from user's events
             await User.findByIdAndUpdate(userId, { $pull: { events: eventId } });
 
-            return res.status(200).json({ message: "Vous avez transféré l'ownership et quitté l'événement avec succès.", newOwner: newOwnerId });
+            // Re-populate participants before sending response
+            const updatedEvent = await Event.findById(eventId).populate('participants', 'name');
+
+            return res.status(200).json(updatedEvent);
         }
 
         if (!event.participants.includes(userId)) {
@@ -163,7 +188,7 @@ exports.quitEvent = async (req, res) => {
 
         // Remove user from event participants
         await Event.findByIdAndUpdate(
-            { _id: eventId },
+            eventId,
             {
                 $pull: { participants: userId },
                 $inc: { participantsNumber: -1 },
@@ -174,13 +199,15 @@ exports.quitEvent = async (req, res) => {
         // Remove event from user's events
         await User.findByIdAndUpdate(userId, { $pull: { events: eventId } });
 
-        res.status(200).json({ message: "Vous avez quitté l'événement avec succès." });
+        // Re-populate participants before sending response
+        const updatedEvent = await Event.findById(eventId).populate('participants', 'name');
+
+        return res.status(200).json(updatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: error.message });
     }
 };
-
 
 exports.updateEvent = async (req, res) => {
     const eventId = req.params.id;
@@ -197,12 +224,15 @@ exports.updateEvent = async (req, res) => {
             .status(403)
             .json({ message: "Vous n'êtes pas l'auteur de cet événement." });
         }
-        let updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, {
-            new: true,
-        }).catch((error) => {
-            return res.json({ error: error.message });
-        });
-        res.json(updatedEvent);
+        let updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, { new: true });
+
+        // Vérifier si l'événement a été mis à jour avec succès
+        if (!updatedEvent) {
+            return res.status(404).json({ message: "Évènement non trouvé lors de la mise à jour." });
+        }
+
+        await updatedEvent.populate('participants', 'name');
+        res.status(200).json(updatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Erreur Serveur");
@@ -242,7 +272,7 @@ exports.deleteEvent = async (req, res) => {
             { $pull: { events: eventId } }
         );
     
-        res.status(200).json({ message: "Événement supprimé avec succès." });
+        res.status(200).json({ deletedEventId: eventId });
     } catch (error) {
         res.status(500).json({
             error: error.message,
@@ -279,26 +309,31 @@ exports.excludeParticipant = async (req, res) => {
             return res.status(403).json({ message: "Vous n'êtes pas l'auteur de cet événement." });
         }
 
+        // Vérifiez si l'utilisateur à exclure est le créateur de l'événement
+        if (event.createdBy.toString() === userId.toString()) {
+            return res.status(400).json({ message: "Vous ne pouvez pas vous exclure vous-même de l'événement." });
+        }
+
         // Vérifiez si l'utilisateur à exclure est un participant de l'événement
         if (!event.participants.includes(userId)) {
             return res.status(400).json({ message: "L'utilisateur n'est pas un participant de cet événement." });
         }
 
         // Exclure l'utilisateur de l'événement
-        await Event.findByIdAndUpdate(
+        const updatedEvent = await Event.findByIdAndUpdate(
             eventId,
             {
                 $pull: { participants: userId },
                 $inc: { participantsNumber: -1 },
-                $addToSet: { blacklist: { user: userId } } // Ajouter à la liste noire
+                $addToSet: { blacklist: userId } // Ajouter à la liste noire
             },
             { new: true }
-        );
+        ).populate('participants', 'name');
 
         // Supprimer l'événement de la liste des événements de l'utilisateur exclu
         await User.findByIdAndUpdate(userId, { $pull: { events: eventId } });
 
-        res.status(200).json({ message: "L'utilisateur a été exclu de l'événement avec succès et ajouté à la liste noire." });
+        res.status(200).json(updatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: error.message });
@@ -321,13 +356,13 @@ exports.getEventsByUser = async (req, res) => {
     }
 };
 
-
 exports.unblockParticipant = async (req, res) => {
     const eventId = req.params.id;
     const userId = req.body.userId; // L'ID de l'utilisateur à débannir
 
     try {
         const event = await Event.findById(eventId);
+
         if (!event) {
             return res.status(404).json({ message: "Événement non trouvé." });
         }
@@ -338,21 +373,22 @@ exports.unblockParticipant = async (req, res) => {
         }
 
         // Vérifiez si l'utilisateur à débannir est dans la liste noire de l'événement
-        const isBlocked = event.blacklist.some(item => item.user.toString() === userId);
+        const isBlocked = event.blacklist.some(item => item.toString() === userId);
         if (!isBlocked) {
             return res.status(400).json({ message: "L'utilisateur n'est pas dans la liste noire de cet événement." });
         }
 
         // Retirer l'utilisateur de la liste noire de l'événement
-        await Event.findByIdAndUpdate(
+        const updatedEvent = await Event.findByIdAndUpdate(
             eventId,
-            { $pull: { blacklist: { user: userId } } },
+            { $pull: { blacklist: userId } },
             { new: true }
-        );
+        ).populate('participants', 'name');
 
-        res.status(200).json({ message: "L'utilisateur a été débanni de l'événement avec succès." });
+        res.status(200).json(updatedEvent);
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: error.message });
     }
 };
+
