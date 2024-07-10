@@ -10,6 +10,8 @@ const connectDB = async () => {
 
     // Log in EVENT Handler
     conn.connection.on("connected", () => {
+      // gridFs
+
       console.log("Mongoose connected to DB");
     });
 

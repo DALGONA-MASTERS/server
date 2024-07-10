@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 //middleware to check for user token
 exports.checkUser = (req, res, next) => {
-  const token = req.cookies ? req.cookies.jwt : null;
+  const token = req.headers["jwt"] ? req.headers["jwt"] : null;
   if (!token) {
     return res
       .status(401)
@@ -12,7 +12,7 @@ exports.checkUser = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     req.user = decoded;
-    console.log(decoded);
+
     next();
   } catch (error) {
     console.log("error : " + error.message);
