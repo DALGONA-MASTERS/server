@@ -4,10 +4,10 @@ require('dotenv').config({ path: './config/.env' }); // Spécifie le chemin vers
 const cookieParser = require("cookie-parser");
 
 //Routes initialisation
-const userRoutes = require('./routes/UserRoutes');
+const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/EventRoutes');
 const contributionRoutes = require('./routes/ContributionRoutes');
-const postRoutes = require('./routes/PostRoutes');
+const postRoutes = require('./routes/postRoutes');
 const statsRoutes = require('./routes/StatsRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const cors = require('cors');

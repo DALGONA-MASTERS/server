@@ -15,6 +15,7 @@ const {
   searchEvents,
   getPostsForEvent,
   addPostForEvent,
+  getEvent
 } = require("../controllers/EventController");
 
 const { checkUser } = require("../middleware/AuthMiddleware");
@@ -25,6 +26,7 @@ const upload = multer({ storage });
 const router = require("express").Router();
 // Routes for events
 
+router.get("/:id", getEvent);
 router.post("/", checkUser,upload.single("picture"), createEvent);
 router.get("/", checkUser, getAllEvents);
 router.put("/:id/join", checkUser, joinEvent);
