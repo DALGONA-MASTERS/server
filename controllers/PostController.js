@@ -33,11 +33,11 @@ module.exports.createPost = async (req, res) => {
         picture: uploadUrl,
       });
       await newPost.save();
-      return res.json({ newPost });
+      return res.status(200).json({ newPost });
     } else {
       const newPost = new postModule({ content, author });
       await newPost.save();
-      return res.json({ newPost });
+      return res.status(200).json({ newPost });
     }
   } catch (error) {
     console.error(error);
@@ -121,7 +121,7 @@ module.exports.addComment = async (req, res) => {
 
     post.comments.push(newComment);
     await post.save();
-    res.json(post);
+    res.status(200).json(post);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Erreur Serveur");
@@ -162,7 +162,7 @@ module.exports.deleteComment = async (req, res) => {
     }
     post.comments.splice(commentIndex, 1);
     await post.save();
-    res.json({ post });
+    res.status(200).json({ post });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -9,6 +9,7 @@ const eventRoutes = require('./routes/EventRoutes');
 const contributionRoutes = require('./routes/ContributionRoutes');
 const postRoutes = require('./routes/PostRoutes');
 const statsRoutes = require('./routes/StatsRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 const cors = require('cors');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/events', eventRoutes);
 app.use('/contributions', contributionRoutes);
 app.use('/posts', postRoutes);
 app.use('/stats', statsRoutes);
+app.use('/messages', messageRoutes);
 app.use("/*", (req, res) => res.send("<h1>404 not found</h1>"))
 app.get("/", (req, res) => {
   res.send("API is running...");

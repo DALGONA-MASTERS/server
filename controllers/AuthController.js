@@ -25,7 +25,7 @@ module.exports.signUp = async (req, res) => {
 
     await sendVerificationCode(email, verificationCode);
 
-    res.status(201).json({ message: "Verification code sent to your email. Please verify to complete registration." });
+    res.status(200).json({ message: "Verification code sent to your email. Please verify to complete registration." });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -56,7 +56,7 @@ module.exports.verifyA2FCode = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, { expiresIn: maxAge });
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
-    res.status(200).json({ user: { id: user._id, email: user.email, username: user.username } });
+    res.status(200).json({ user: { id: user._id, email: user.email, username: user.username },  token: token });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -79,7 +79,7 @@ module.exports.login = async (req, res) => {
 
     res.cookie("jwt", token, { httpOnly: true, maxAge });
     // add token to json res
-    res.json({ user: userObj });
+    res.json({ user: userObj, token: token }); // Ajout du token à la réponse JSON
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -127,10 +127,7 @@ module.exports.googleLogin = async (req, res) => {
     });
 
     res.cookie('jwt', jwtToken, { httpOnly: true, maxAge });
-    res.status(200).json({
-      message: 'Google login successful',
-      user: { id: user._id, email: user.email },
-    });
+    res.status(200).json({ user: { id: user._id, email: user.email }, token: token });
   } catch (error) {
     console.error('Error verifying token with Google:', error);
     res.status(400).json({ error: 'Invalid token' });

@@ -24,7 +24,7 @@ exports.addContribution = async (req, res) => {
         });
 
         await newContribution.save();
-        res.status(201).json(newContribution);
+        res.status(200).json(newContribution);
 
     } catch (error) {
         console.error(error.message);
@@ -49,7 +49,7 @@ exports.updateContribution = async (req, res) => {
         contribution.value = value;
         await contribution.save();
 
-        res.json(contribution);
+        res.status(200).json(contribution);
 
     } catch (error) {
         console.error(error.message);
@@ -103,7 +103,7 @@ exports.validateContribution = async (req, res) => {
         
         await updateGlobalStats(contribution.actionType, contribution.value);
         
-        res.json(contribution);
+        res.status(200).json(contribution);
 
     } catch (error) {
         console.error(error.message);
@@ -176,7 +176,7 @@ const updateGlobalStats = async (actionType, value) => {
 exports.getUserContributions = async (req, res) => {
     try {
         const contributions = await Contribution.find({ user: req.user.id }).populate('event', 'title');
-        res.json(contributions);
+        res.status(200).json(contributions);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Erreur Serveur');
@@ -186,7 +186,7 @@ exports.getUserContributions = async (req, res) => {
 exports.getAllContributions = async (req, res) => {
     try {
         const contributions = await Contribution.find().populate('event', 'title').populate('user', 'name');
-        res.json(contributions);
+        res.status(200).json(contributions);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Erreur Serveur');
