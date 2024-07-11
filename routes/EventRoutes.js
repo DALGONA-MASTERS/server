@@ -13,9 +13,15 @@ const {
   getAllEventsThisWeek,
   getAllEventsThisMonth,
   searchEvents,
+  getPostsForEvent,
+  addPostForEvent,
 } = require("../controllers/EventController");
 
 const { checkUser } = require("../middleware/AuthMiddleware");
+const multer = require("multer");
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 const router = require("express").Router();
 // Routes for events
 
@@ -35,4 +41,8 @@ router.get("/filter/date/week", checkUser, getAllEventsThisWeek);
 router.get("filter/date/month", checkUser, getAllEventsThisMonth);
 // searching an event
 router.get("/search/", checkUser, searchEvents);
+// getting posts for an event
+router.get("/:id/posts", checkUser, getPostsForEvent);
+// adding post to an event
+router.post("/:id/posts", checkUser, upload.single("picture"), addPostForEvent);
 module.exports = router;

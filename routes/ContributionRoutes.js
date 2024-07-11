@@ -4,7 +4,8 @@ const {
     getUserContributions,
     validateContribution,
     getAllContributions,
-    getContributionsByEvent
+    getContributionsByEvent,
+    getContributionsByActionTypeAndMonth
 } = require("../controllers/ContributionController");
 
 const { checkUser } = require("../middleware/AuthMiddleware");
@@ -17,6 +18,7 @@ router.post('/validate/:contributionId',checkUser, validateContribution);
 router.get('/user',checkUser, getUserContributions);
 router.get('/', getAllContributions);
 router.get('/:id', getContributionsByEvent);
+router.get('/actionType/:actionType/monthly', checkUser, getContributionsByActionTypeAndMonth);
 
 
 module.exports = router;

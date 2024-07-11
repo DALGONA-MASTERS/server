@@ -56,29 +56,6 @@ exports.updateContribution = async (req, res) => {
         res.status(500).send('Erreur Serveur');
     }
 };
-/*
-exports.deleteContribution = async (req, res) => {
-    const { contributionId } = req.params;
-
-    try {
-        let contribution = await Contribution.findById(contributionId);
-        if (!contribution) {
-            return res.status(404).json({ message: 'Contribution non trouvée.' });
-        }
-
-        if (contribution.user.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Vous n'êtes pas autorisé à supprimer cette contribution." });
-        }
-
-        await contribution.remove();
-        res.json({ message: 'Contribution supprimée avec succès.' });
-
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Erreur Serveur');
-    }
-};*/
-
 
 exports.validateContribution = async (req, res) => {
     const { contributionId } = req.params;
@@ -201,6 +178,36 @@ exports.getContributionsByEvent = async (req, res) => {
         if (contributions.length === 0) {
             return res.status(404).json({ message: 'No contributions found for this event.' });
         }
+        res.status(200).json(contributions);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.getContributionsByActionTypeAndMonth = async (req, res) => {
+    const { actionType } = req.params;
+
+    try {
+        // Aggregate contributions by month and sum their values
+        const contributions = await Contribution.aggregate([
+            { $match: { actionType: actionType } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    totalValue: { $sum: "$value" }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } }
+        ]);
+
+        if (contributions.length === 0) {
+            return res.status(404).json({ message: 'No contributions found for this action type.' });
+        }
+
         res.status(200).json(contributions);
     } catch (error) {
         console.error(error.message);

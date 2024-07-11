@@ -16,11 +16,16 @@ const eventSchema = new Schema({
   description: {
     type: String,
     required: true,
-  },
+  },  
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+  },
+  picture: {
+    type: String,
+    required: false,
+    default: null,
   },
   participants: [
     {

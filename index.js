@@ -21,9 +21,12 @@ connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  exposedHeaders: ['jwt']
-}));
+const corsOptions = {
+  origin: 'http://localhost:3000/',
+  credentials: true, 
+  exposedHeaders: ['jwt'] 
+};
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/users', userRoutes);

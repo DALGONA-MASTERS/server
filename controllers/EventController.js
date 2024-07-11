@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 const User = require("../models/User");
+const Stats = require('../models/Stats');
 
 exports.createEvent = async (req, res) => {
     const { title, startDate, endDate, description, actionType, target, privacy } = req.body;
@@ -51,8 +52,28 @@ exports.createEvent = async (req, res) => {
             { new: true }
         );
 
-        // Sauvegarder le nouvel événement
-        await newEvent.save();
+        // Update the target in global stats for the specified actionType
+        let stats = await Stats.findOne({});
+        if (!stats) {
+            stats = new Stats();
+        }
+
+        let actionsMap = stats.actions;
+        if (!actionsMap) {
+            actionsMap = new Map();
+        }
+
+        if (!actionsMap.has(actionType)) {
+            actionsMap.set(actionType, { target: 0, progress: 0, value: 0, unit: determineUnit(actionType) });
+        }
+
+        const actionData = actionsMap.get(actionType);
+        actionData.target += target;
+        actionsMap.set(actionType, actionData);
+
+        stats.actions = actionsMap;
+        stats.markModified('actions');
+        await stats.save();
 
         // Recharger l'événement avec les noms des participants peuplés
         const populatedEvent = await Event.findById(newEvent._id).populate('participants', 'name');
@@ -211,19 +232,35 @@ exports.quitEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
     const eventId = req.params.id;
-
     try {
         let event = await Event.findById(eventId);
         if (!event) {
             return res.status(404).json({ message: "Évènement non trouvé." });
         }
 
-        // add verification to check if the logged in user is the creator of the post
+        // Add verification to check if the logged-in user is the creator of the event
         if (event.createdBy.toString() !== req.user.id) {
             return res
-            .status(403)
-            .json({ message: "Vous n'êtes pas l'auteur de cet événement." });
+                .status(403)
+                .json({ message: "Vous n'êtes pas l'auteur de cet événement." });
         }
+
+        // Update the target in stats if defined
+        if (req.body.target) {
+            const stats = await Stats.findOne();
+            console.log(stats)
+            const action = stats.actions.get(event.actionType);
+            console.log(action)
+
+            if (action) {
+                action.target = action.target - event.target + req.body.target; 
+                stats.actions.set(event.actionType, action);
+                stats.actions.set(event.actionType, { ...action, target: action.target });
+                stats.markModified('actions'); 
+                await stats.save();
+            }
+        }
+
         let updatedEvent = await Event.findByIdAndUpdate(eventId, req.body, { new: true });
 
         // Vérifier si l'événement a été mis à jour avec succès
@@ -517,4 +554,58 @@ exports.searchEvents = async (req, res) => {
     console.error(error.message);
     res.status(500).send("Erreur Serveur");
   }
+};
+
+
+exports.getPostsForEvent = async (req, res) => {
+    const eventId = req.params.id;
+  
+    try {
+      const event = await Event.findById(eventId).populate("posts");
+  
+      if (!event) {
+        return res.status(404).json({ message: "Événement non trouvé." });
+      }
+  
+      res.status(200).json(event.posts);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Erreur Serveur");
+    }
+  };
+  // create posts for event
+exports.addPostForEvent = async (req, res) => {
+    try {
+      const author = req.user.id;
+      const { content } = req.body;
+      const eventId = req.params.id;
+      if (!content)
+        return res.status(400).json({ message: "Content is required" });
+  
+      const event = await Event.findById(req.body.eventId);
+      if (!event) return res.status(404).json({ message: "Event not found" });
+      eventId = event._id;
+  
+      let uploadUrl = null;
+      if (req.file) {
+        uploadUrl = await uploadPicture(req.file);
+      }
+  
+      const newPost = new postModule({
+        content,
+        author,
+        picture: uploadUrl,
+        eventId,
+      });
+  
+      await newPost.save();
+  
+      event.posts.push(newPost._id);
+      await event.save();
+  
+      res.status(201).json(newPost);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    }
 };

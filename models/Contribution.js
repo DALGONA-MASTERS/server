@@ -28,6 +28,10 @@ const contributionSchema = new Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    accumulatedProgress: {
+        type: Number,
+        default: 0
     }
 });
 
