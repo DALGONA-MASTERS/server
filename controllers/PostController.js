@@ -1,5 +1,4 @@
 const postModule = require("../models/Post");
-
 const { uploadPicture } = require("../utils/uploadImages");
 module.exports.getAllPosts = async (req, res) => {
   try {
@@ -66,7 +65,6 @@ module.exports.updatePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 exports.likePost = async (req, res) => {
   try {
     // Find the post by ID
@@ -90,7 +88,6 @@ exports.likePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 module.exports.deletePost = async (req, res) => {
   try {
     const post = await postModule.findById(req.params.id);
@@ -106,7 +103,6 @@ module.exports.deletePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 module.exports.addComment = async (req, res) => {
   const postId = req.params.id;
   const { comment } = req.body;
@@ -130,7 +126,6 @@ module.exports.addComment = async (req, res) => {
     res.status(500).send("Erreur Serveur");
   }
 };
-
 module.exports.editComment = async (req, res) => {
   console.log(req.params);
   const postId = req.params.id;
@@ -152,7 +147,6 @@ module.exports.editComment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 module.exports.deleteComment = async (req, res) => {
   const postId = req.params.id;
   const { commentId } = req.params;
@@ -167,7 +161,7 @@ module.exports.deleteComment = async (req, res) => {
     }
     post.comments.splice(commentIndex, 1);
     await post.save();
-    res.status(200).json({ post });
+    res.status(200).json( post );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

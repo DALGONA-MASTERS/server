@@ -3,7 +3,8 @@ const {
     updateContribution,
     getUserContributions,
     validateContribution,
-    getAllContributions
+    getAllContributions,
+    getContributionsByEvent
 } = require("../controllers/ContributionController");
 
 const { checkUser } = require("../middleware/AuthMiddleware");
@@ -15,6 +16,7 @@ router.put('/:contributionId',checkUser, updateContribution);
 router.post('/validate/:contributionId',checkUser, validateContribution);
 router.get('/user',checkUser, getUserContributions);
 router.get('/', getAllContributions);
+router.get('/:id', getContributionsByEvent);
 
 
 module.exports = router;

@@ -43,6 +43,10 @@ const postSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  eventId: {
+    type: Schema.Types.ObjectId,
+    ref: "Event",
+  },
 });
 
 module.exports = model("Post", postSchema);

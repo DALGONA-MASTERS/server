@@ -66,10 +66,11 @@ module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await userModel.login(email, password);
-    /*if(user.deactivated) {
-      return res.status(401).json({ message: "deactivated account. Contact SUpport" });
+    console.log(user)
+    if(user.deactivated) {
+      return res.status(401).json({ message: "deactivated account. Contact Support" });
     }
-    */
+    
 
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -109,10 +110,14 @@ module.exports.googleLogin = async (req, res) => {
     const email = payload.email;
     const fullName = payload.name;
     const picture = payload.picture;
+    const googleId = payload.sub;
+
 
     // Find or create the user in your database
     let user = await userModel.findOne({ email });
-
+    if(user.deactivated) {
+      return res.status(401).json({ message: "deactivated account. Contact Support" });
+    }
     if (!user) {
       // Generate a random password
       const randomPassword = generateRandomString(10);
@@ -122,6 +127,7 @@ module.exports.googleLogin = async (req, res) => {
         username: fullName,
         profilePic: picture,
         password: randomPassword, // Assigner le mot de passe aléatoire
+        googleId: googleId
       });
       await user.save();
     }
@@ -132,7 +138,7 @@ module.exports.googleLogin = async (req, res) => {
     });
 
     res.cookie('jwt', jwtToken, { httpOnly: true, maxAge });
-    res.status(200).json({ user: { id: user._id, email: user.email }, token: token });
+    res.status(200).json({ user: { _id: user._id, email: user.email }, token: token });
   } catch (error) {
     console.error('Error verifying token with Google:', error);
     res.status(400).json({ error: 'Invalid token' });

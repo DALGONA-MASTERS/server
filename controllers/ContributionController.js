@@ -192,3 +192,18 @@ exports.getAllContributions = async (req, res) => {
         res.status(500).send('Erreur Serveur');
     }
 };
+
+exports.getContributionsByEvent = async (req, res) => {
+    const eventId = req.params.id;
+
+    try {
+        const contributions = await Contribution.find({ event: eventId }).populate('user', 'name');
+        if (contributions.length === 0) {
+            return res.status(404).json({ message: 'No contributions found for this event.' });
+        }
+        res.status(200).json(contributions);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server Error');
+    }
+};

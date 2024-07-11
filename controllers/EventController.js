@@ -340,6 +340,24 @@ exports.excludeParticipant = async (req, res) => {
     }
 };
 
+exports.getEvent = async (req, res) => {
+    const eventId = req.params.id;
+
+    try {
+        const event = await Event.findById(eventId).populate('participants', 'name');
+
+        if (!event) {
+            return res.status(404).json({ message: 'Événement non trouvé.' });
+        }
+
+        res.status(200).json(event);
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.getEventsByUser = async (req, res) => {
     const userId = req.user.id;
   
@@ -392,3 +410,111 @@ exports.unblockParticipant = async (req, res) => {
     }
 };
 
+// filtering events
+// trending events
+exports.getTrendingEvents = async (req, res) => {
+  try {
+    // Find events sorted by the number of participants in descending order
+    const trendingEvents = await Event.find()
+      .sort({ participantsNumber: -1 }) // Sort by participantsNumber in descending order
+      .limit(10) // Limit to top 10 trending events
+      .populate("participants", "name"); // Populate participants with their names
+
+    if (trendingEvents.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Aucun événement tendance trouvé." });
+    }
+
+    res.status(200).json(trendingEvents);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Erreur Serveur");
+  }
+};
+// filter by date
+// get events on a particular date
+exports.getEventOnDate = async (req, res) => {
+  const startDate = new Date(req.query.startDate);
+  try {
+    const events = await Event.find({ startDate: { $eq: startDate } });
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Aucun événement trouvé pour cette date." });
+    }
+    res.json(events);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Erreur Serveur");
+  }
+};
+// get all events for this week
+
+exports.getAllEventsThisWeek = async (req, res) => {
+  const currentDate = new Date();
+  const startDateOfWeek = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate() - currentDate.getDay()
+  );
+  const endDateOfWeek = new Date(startDateOfWeek.getTime() + 604800000); // 604800000 = 7 days * 24 hours * 60 minutes * 60 seconds
+  try {
+    const events = await Event.find({
+      startDate: { $gte: startDateOfWeek, $lte: endDateOfWeek },
+    });
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Aucun événement trouvé cette semaine." });
+    }
+    res.json(events);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+// get all events for this month
+
+exports.getAllEventsThisMonth = async (req, res) => {
+  const currentDate = new Date();
+  const startDateOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  );
+  const endDateOfMonth = new Date(startDateOfMonth.getTime() + 2629743000); // 2629743000 = 31 days * 24 hours * 60 minutes * 60 seconds
+  try {
+    const events = await Event.find({
+      startDate: { $gte: startDateOfMonth, $lte: endDateOfMonth },
+    });
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Aucun événement trouvé ce mois." });
+    }
+    res.json(events);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+//  search an event
+
+exports.searchEvents = async (req, res) => {
+  const searchText = req.query.searchText;
+  try {
+    const events = await Event.find({
+      $text: { $search: searchText },
+    })
+      .populate("participants", "name")
+      .sort({ participantsNumber: -1 });
+    if (events.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Aucun événement trouvé pour cette recherche." });
+    }
+    res.json(events);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Erreur Serveur");
+  }
+};

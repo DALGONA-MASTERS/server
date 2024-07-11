@@ -56,7 +56,7 @@ module.exports.deleteUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     
-    //user.deactivated = true;
+    user.deactivated = true;
     await user.save();
     
     res.status(200).json({ message: "User account deactivated successfully" });

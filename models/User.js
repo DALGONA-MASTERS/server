@@ -40,6 +40,10 @@ const userSchema = new Schema({
   googleId: {
     type: String,
   },
+  deactivated: {
+    type: Boolean,
+    default: false
+  }
 });
 
 // adding login method
