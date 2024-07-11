@@ -1,72 +1,36 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backend de ProjectX</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            margin-top: 20px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 20px;
-        }
-        code {
-            background-color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-size: 0.95em;
-        }
-    </style>
-</head>
-<body>
-    <h1>Backend de ProjectX</h1>
+# Backend de ProjectX
 
-    <p>Ce backend est construit avec Node.js et MongoDB, conçu pour gérer les utilisateurs, les publications, les événements et les statistiques efficacement. Il fournit des endpoints d'API RESTful pour diverses opérations, y compris la gestion des utilisateurs, la création et la manipulation des publications, la gestion des événements et le suivi des statistiques.</p>
+Ce backend est construit avec Node.js et MongoDB, conçu pour gérer les utilisateurs, les publications, les événements et les statistiques efficacement. Il fournit des endpoints d'API RESTful pour diverses opérations, y compris la gestion des utilisateurs, la création et la manipulation des publications, la gestion des événements et le suivi des statistiques.
 
-    <hr>
+---
 
-    <h2>Technologies Utilisées</h2>
-    <ul>
-        <li>Node.js</li>
-        <li>Express</li>
-        <li>MongoDB</li>
-        <li>Mongoose</li>
-        <li>Firebase (pour le stockage des fichiers)</li>
-    </ul>
+## Technologies Utilisées
 
-    <hr>
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+- Firebase (pour le stockage des fichiers)
 
-    <h2>Capture d'écran</h2>
-    <p>BackEnd réalisé sous ce modèle (diagramme de classe)</p>
-    <img src="./class_diagram.png" alt="Capture d'écran du diagramme">
+---
 
-    <hr>
+## Capture d'écran
 
-    <h2>Démarrage</h2>
-    <p>Pour démarrer avec ce projet, suivez les étapes ci-dessous :</p>
-    <ol>
-        <li>Installez Node.js et npm sur votre machine.</li>
-        <li>Clonez le dépôt : <code>git clone https://github.com/DALGONA-MASTERS/server.git</code></li>
-        <li>Installez les dépendances : <code>npm install</code></li>
-        <li>Exécutez le serveur de développement : <code>npm start</code></li>
-        <li>Ouvrez votre navigateur et visitez <code>http://localhost:8042</code> pour accéder à l'application.</li>
-        <li>Ou accédez directement au backend déployé sur : <code>https://server-vgg7.onrender.com</code></li>
-    </ol>
+BackEnd réalisé sous ce modèle (diagramme de classe)
 
-    <hr>
+![Capture d'écran du diagramme](./class_diagram.png)
 
-    <footer>
-        <p>Pour toute question ou assistance, veuillez nous contacter à <a href="mailto:support@example.com">support@example.com</a>.</p>
-    </footer>
-</body>
-</html>
+---
+
+## Démarrage
+
+Pour démarrer avec ce projet, suivez les étapes ci-dessous :
+
+1. Installez Node.js et npm sur votre machine.
+2. Clonez le dépôt : git clone https://github.com/DALGONA-MASTERS/server.git
+3. Installez les dépendances : npm install
+4. Exécutez le serveur de développement : npm start
+5. Ouvrez votre navigateur et visitez http://localhost:8042 pour accéder à l'application.
+6. Ou accédez directement au backend déployé sur : https://server-vgg7.onrender.com
+
+---
