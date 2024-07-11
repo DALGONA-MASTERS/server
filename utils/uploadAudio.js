@@ -6,8 +6,8 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        const mimetypes = /audio\/mpeg|audio\/wav|audio\/ogg/;
-        const extensions = /\.(mp3|wav|ogg)$/;
+        const mimetypes = /audio\/mpeg|audio\/wav|audio\/ogg|audio\/webm/;
+        const extensions = /\.(mp3|wav|ogg|webm)$/;
         
         const mimetype = mimetypes.test(file.mimetype);
         const extname = extensions.test(file.originalname.toLowerCase());

@@ -189,19 +189,18 @@ exports.getContributionsByActionTypeAndMonth = async (req, res) => {
     const { actionType } = req.params;
 
     try {
-        // Aggregate contributions by month and sum their values
+        // Aggregate contributions by month and sum their values for all years
         const contributions = await Contribution.aggregate([
             { $match: { actionType: actionType } },
             {
                 $group: {
                     _id: {
-                        year: { $year: "$createdAt" },
                         month: { $month: "$createdAt" }
                     },
                     totalValue: { $sum: "$value" }
                 }
             },
-            { $sort: { "_id.year": 1, "_id.month": 1 } }
+            { $sort: { "_id.month": 1 } }
         ]);
 
         if (contributions.length === 0) {
