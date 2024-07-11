@@ -27,7 +27,7 @@ const contributionSchema = new Schema({
     validated:{
         type: Boolean,
         required: true,
-        default: false
+        default: true
     },
     accumulatedProgress: {
         type: Number,

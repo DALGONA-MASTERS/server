@@ -9,7 +9,7 @@ const eventRoutes = require('./routes/EventRoutes');
 const contributionRoutes = require('./routes/ContributionRoutes');
 const postRoutes = require('./routes/postRoutes');
 const statsRoutes = require('./routes/StatsRoutes');
-const messageRoutes = require('./routes/messageRoutes');
+const messageRoutes = require('./routes/MessageRoutes');
 const cors = require('cors');
 
 const app = express();
