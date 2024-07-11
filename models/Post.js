@@ -11,10 +11,6 @@ const postSchema = new Schema({
   },
   content: {
     type: String,
-<<<<<<< HEAD
-=======
-    required: true,
->>>>>>> a4499a909691ed513a890b7c7cae34ee18bdb0f2
   },
   likers: [
     {

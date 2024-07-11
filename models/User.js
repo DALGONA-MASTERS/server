@@ -31,11 +31,7 @@ const userSchema = new Schema({
       ref: "Post",
     },
   ],
-<<<<<<< HEAD
   events: [
-=======
-  Events: [
->>>>>>> a4499a909691ed513a890b7c7cae34ee18bdb0f2
     {
       type: Schema.Types.ObjectId,
       ref: "Event",
