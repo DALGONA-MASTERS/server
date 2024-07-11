@@ -114,9 +114,7 @@ module.exports.googleLogin = async (req, res) => {
 
     // Find or create the user in your database
     let user = await userModel.findOne({ email });
-    if (user.deactivated) {
-      return res.status(401).json({ message: "deactivated account. Contact Support" });
-    }
+
     if (!user) {
       // Generate a random password
       const randomPassword = generateRandomString(10);
@@ -129,17 +127,19 @@ module.exports.googleLogin = async (req, res) => {
         googleId: googleId
       });
       await user.save();
-
-      // Generate JWT token
-      const jwtToken = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, {
-        expiresIn: maxAge,
-      });
-
-      res.cookie('jwt', jwtToken, { httpOnly: true, maxAge });
-      res.status(200).json({ user: { _id: user._id, email: user.email }, token: token });
     } else {
-      res.status(400).json({ message: "Account already exists." });
+      if (user.deactivated) {
+        return res.status(401).json({ message: "deactivated account. Contact Support" });
+      }
     }
+
+    // Generate JWT token
+    const jwtToken = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET, {
+      expiresIn: maxAge,
+    });
+
+    res.cookie('jwt', jwtToken, { httpOnly: true, maxAge });
+    res.status(200).json({ user: { _id: user._id, email: user.email }, token: jwtToken });
 
   } catch (error) {
     console.error('Error verifying token with Google:', error);

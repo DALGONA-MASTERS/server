@@ -25,7 +25,7 @@ const upload = multer({ storage });
 const router = require("express").Router();
 // Routes for events
 
-router.post("/", checkUser, createEvent);
+router.post("/", checkUser,upload.single("picture"), createEvent);
 router.get("/", checkUser, getAllEvents);
 router.put("/:id/join", checkUser, joinEvent);
 router.put("/:id/leave", checkUser, quitEvent);

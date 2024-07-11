@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +28,8 @@
     "nodemon": "^3.1.4",
     "uuid-v4": "^0.1.0",
     "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.0"
   }
 }

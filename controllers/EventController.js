@@ -1,9 +1,15 @@
 const Event = require('../models/Event');
 const User = require("../models/User");
 const Stats = require('../models/Stats');
+const { uploadPicture } = require("../utils/uploadImages");
 
 exports.createEvent = async (req, res) => {
     const { title, startDate, endDate, description, actionType, target, privacy } = req.body;
+
+    let uploadUrl = null;
+    if (req.file) {
+      uploadUrl = await uploadPicture(req.file);
+    }
 
     if (!title || !startDate || !endDate || !description || !actionType || !target) {
         return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
@@ -40,7 +46,8 @@ exports.createEvent = async (req, res) => {
             createdBy: req.user.id,
             participants: [req.user.id], // Ajouter le créateur aux participants
             participantsNumber: 1,
-            privacy
+            privacy,
+            picture: uploadUrl
         });
 
         await newEvent.save();
