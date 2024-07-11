@@ -207,7 +207,7 @@ exports.getContributionsByActionTypeAndMonth = async (req, res) => {
             return res.status(404).json({ message: 'No contributions found for this action type.' });
         }
 
-        res.status(200).json(contributions);
+        res.status(200).json([...contributions, { actionType }]);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server Error');
