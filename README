@@ -1,6 +1,6 @@
-# Backend de ProjectX
+# Backend
 
-Ce backend est construit avec Node.js et MongoDB, conçu pour gérer les utilisateurs, les publications, les événements et les statistiques efficacement. Il fournit des endpoints d'API RESTful pour diverses opérations, y compris la gestion des utilisateurs, la création et la manipulation des publications, la gestion des événements et le suivi des statistiques.
+Ce backend est construit avec Node.js et MongoDB, conçu pour gérer les utilisateurs, les publications, les événements et les statistiques efficacement. Il fournit des endpoints d'API pour diverses opérations, y compris la gestion des utilisateurs, la création et la manipulation des publications, la gestion des événements et le suivi des statistiques.
 
 ---
 
