@@ -23,6 +23,8 @@ exports.addContribution = async (req, res) => {
             actionType: event.actionType
         });
 
+        await updateGlobalStats(newContribution.actionType, newContribution.value); // -> Mise à jour des statistiques globales (temporaire) car front end validation non terminée
+
         await newContribution.save();
         res.status(200).json(newContribution);
 
