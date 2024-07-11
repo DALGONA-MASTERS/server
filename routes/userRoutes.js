@@ -3,7 +3,7 @@ const {
   getAll,
   updateUser,
   deleteUser,
-  getLoggedInUser
+  getUser
 } = require("../controllers/UserController");
 const { checkUser } = require("../middleware/AuthMiddleware");
 const multer = require("multer");
@@ -20,9 +20,9 @@ router.post("/logout", checkUser,logout);
 
 
 //other routes ONLY for admin
-router.get("/", checkUser,getLoggedInUser);
 router.get("/getAll", checkUser,getAll);
 router.patch("/:id", checkUser, upload.single("profilePic"), updateUser);
 router.delete("/:id", checkUser,deleteUser);
+router.get("/:id", getUser);
 
 module.exports = router;

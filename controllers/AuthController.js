@@ -66,6 +66,11 @@ module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await userModel.login(email, password);
+    /*if(user.deactivated) {
+      return res.status(401).json({ message: "deactivated account. Contact SUpport" });
+    }
+    */
+
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }

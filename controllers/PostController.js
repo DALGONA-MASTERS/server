@@ -33,11 +33,11 @@ module.exports.createPost = async (req, res) => {
         picture: uploadUrl,
       });
       await newPost.save();
-      return res.status(200).json({ newPost });
+      return res.status(200).json( newPost );
     } else {
       const newPost = new postModule({ content, author });
       await newPost.save();
-      return res.status(200).json({ newPost });
+      return res.status(200).json( newPost );
     }
   } catch (error) {
     console.error(error);
@@ -66,6 +66,7 @@ module.exports.updatePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.likePost = async (req, res) => {
   try {
     // Find the post by ID
@@ -89,6 +90,7 @@ exports.likePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 module.exports.deletePost = async (req, res) => {
   try {
     const post = await postModule.findById(req.params.id);
@@ -104,6 +106,7 @@ module.exports.deletePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 module.exports.addComment = async (req, res) => {
   const postId = req.params.id;
   const { comment } = req.body;
@@ -115,7 +118,7 @@ module.exports.addComment = async (req, res) => {
     }
 
     const newComment = {
-      commenter: req.user,
+      commenter: req.user.id,
       comment,
     };
 
@@ -127,6 +130,7 @@ module.exports.addComment = async (req, res) => {
     res.status(500).send("Erreur Serveur");
   }
 };
+
 module.exports.editComment = async (req, res) => {
   console.log(req.params);
   const postId = req.params.id;
@@ -148,11 +152,12 @@ module.exports.editComment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 module.exports.deleteComment = async (req, res) => {
   const postId = req.params.id;
   const { commentId } = req.params;
   try {
-    const post = postModule.findById(postId);
+    const post = await postModule.findById(postId);
     if (!post) return res.status(404).json({ message: "post not found" });
     const commentIndex = post.comments.findIndex(
       (comment) => comment._id.toString() === commentId

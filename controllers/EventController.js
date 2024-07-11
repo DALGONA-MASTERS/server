@@ -272,7 +272,7 @@ exports.deleteEvent = async (req, res) => {
             { $pull: { events: eventId } }
         );
     
-        res.status(200).json({ deletedEventId: eventId });
+        res.status(200).json({ _id: eventId });
     } catch (error) {
         res.status(500).json({
             error: error.message,
