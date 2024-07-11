@@ -24,20 +24,17 @@ module.exports.createPost = async (req, res) => {
     const author = req.user.id;
     const { content } = req.body;
     // log the req.file
+    let uploadUrl = null;
     if (req.file) {
-      const uploadUrl = await uploadPicture(req.file);
-      const newPost = new postModule({
-        content,
-        author,
-        picture: uploadUrl,
-      });
-      await newPost.save();
-      return res.status(200).json({ newPost });
-    } else {
-      const newPost = new postModule({ content, author });
-      await newPost.save();
-      return res.status(200).json({ newPost });
+      uploadUrl = await uploadPicture(req.file);
     }
+    const newPost = new postModule({
+      content,
+      author,
+      picture: uploadUrl,
+    });
+    await newPost.save();
+    res.status(201).json(newPost);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

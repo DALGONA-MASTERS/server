@@ -22,6 +22,11 @@ const eventSchema = new Schema({
     ref: "User",
     required: true,
   },
+  picture: {
+    type: String,
+    required: false,
+    default: null,
+  },
   participants: [
     {
       type: Schema.Types.ObjectId,

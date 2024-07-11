@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const User = require("../models/User");
+const { uploadPicture } = require("../utils/uploadImages");
 
 exports.createEvent = async (req, res) => {
   const {
@@ -11,6 +12,11 @@ exports.createEvent = async (req, res) => {
     target,
     privacy,
   } = req.body;
+
+  let uploadUrl = null;
+  if (req.file) {
+    uploadUrl = await uploadPicture(req.file);
+  }
 
   if (
     !title ||
@@ -70,6 +76,7 @@ exports.createEvent = async (req, res) => {
       participants: [req.user.id], // Ajouter le créateur aux participants
       participantsNumber: 1,
       privacy,
+      picture: uploadUrl,
     });
 
     await newEvent.save();
@@ -80,9 +87,6 @@ exports.createEvent = async (req, res) => {
       { $push: { events: newEvent._id } },
       { new: true }
     );
-
-    // Sauvegarder le nouvel événement
-    await newEvent.save();
 
     // Recharger l'événement avec les noms des participants peuplés
     const populatedEvent = await Event.findById(newEvent._id).populate(
@@ -585,5 +589,59 @@ exports.searchEvents = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Erreur Serveur");
+  }
+};
+// get posts for an event
+
+exports.getPostsForEvent = async (req, res) => {
+  const eventId = req.params.id;
+
+  try {
+    const event = await Event.findById(eventId).populate("posts");
+
+    if (!event) {
+      return res.status(404).json({ message: "Événement non trouvé." });
+    }
+
+    res.status(200).json(event.posts);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Erreur Serveur");
+  }
+};
+// create posts for event
+module.exports.addPostForEvent = async (req, res) => {
+  try {
+    const author = req.user.id;
+    const { content } = req.body;
+    const eventId = req.params.id;
+    if (!content)
+      return res.status(400).json({ message: "Content is required" });
+
+    const event = await Event.findById(req.body.eventId);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    eventId = event._id;
+
+    let uploadUrl = null;
+    if (req.file) {
+      uploadUrl = await uploadPicture(req.file);
+    }
+
+    const newPost = new postModule({
+      content,
+      author,
+      picture: uploadUrl,
+      eventId,
+    });
+
+    await newPost.save();
+
+    event.posts.push(newPost._id);
+    await event.save();
+
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
