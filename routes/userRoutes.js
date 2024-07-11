@@ -1,9 +1,15 @@
-const { signUp, login } = require("../controllers/AuthController");
+const {
+  signUp,
+  login,
+  googleLogin,
+  verifyA2FCode,
+  logout,
+} = require("../controllers/AuthController");
 const {
   getAll,
-  getUser,
   updateUser,
   deleteUser,
+  getUser,
 } = require("../controllers/UserController");
 const { checkUser } = require("../middleware/AuthMiddleware");
 const multer = require("multer");
@@ -14,10 +20,14 @@ const router = require("express").Router();
 //authentication
 router.post("/signUp", signUp);
 router.post("/login", login);
+router.post("/google-login", googleLogin); // Route for Google login
+router.post("/verify-code", verifyA2FCode);
+router.post("/logout", checkUser, logout);
 
-//other routes
-router.get("/", getAll);
-router.get("/:id", checkUser, getUser);
+//other routes ONLY for admin
+router.get("/", checkUser, getUser);
+router.get("/getAll", checkUser, getAll);
 router.patch("/:id", checkUser, upload.single("profilePic"), updateUser);
 router.delete("/:id", checkUser, deleteUser);
+
 module.exports = router;

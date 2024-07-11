@@ -11,6 +11,7 @@ const postSchema = new Schema({
   },
   content: {
     type: String,
+    required: true,
   },
   likers: [
     {
@@ -41,6 +42,10 @@ const postSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  eventId: {
+    type: Schema.Types.ObjectId,
+    ref: "Event",
   },
 });
 

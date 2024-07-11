@@ -51,7 +51,7 @@ exports.updateStats = async (req, res) => {
         await stats.save();
         console.log('Statistiques mises à jour avec succès.');
         
-        res.json(stats);  // Renvoie les statistiques mises à jour
+        res.status(200).json(stats);  // Renvoie les statistiques mises à jour
     } catch (error) {
         console.error('Erreur lors de la mise à jour des statistiques:', error.message);
         if (error instanceof mongoose.Error.ValidationError) {
@@ -74,7 +74,7 @@ exports.getStats = async (req, res) => {
         if (!stats) {
             return res.status(404).json({ message: 'Statistiques introuvables.' });
         }
-        res.json(stats);
+        res.status(200).json(stats);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Erreur Serveur');

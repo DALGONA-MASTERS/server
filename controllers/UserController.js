@@ -1,6 +1,6 @@
 const userModel = require("../models/User");
 const bcrypt = require("bcrypt");
-const { uploadPicture } = require("../uploadImages");
+const { uploadPicture } = require("../utils/uploadImages");
 module.exports.getAll = async (req, res) => {
   try {
     const users = await userModel.find().select("-password");

@@ -1,15 +1,12 @@
-// Import the functions you need from the SDKs you need
+const admin = require('firebase-admin');
+const { firebaseConfig } = require('./FirebaseConfig.js');
+const serviceAccount = require('./ServiceAccount.json');
 
-const firebaseConfig = {
-  apiKey: `${process.env.APIKEY}`,
-  authDomain: `${process.env.AUTHDOMAIN}`,
-  projectId: `${process.env.PROJECTID}`,
-  storageBucket: `${process.env.STORAGEBUCKET}`,
-  messagingSenderId: `${process.env.MESSAGINGSENDERID}`,
-  appId: `${process.env.APPID}`,
-  measurementId: `${process.env.MEASUREMENTID}`,
-};
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: firebaseConfig.storageBucket
+});
 
-// Initialize Firebase
+const bucket = admin.storage().bucket();
 
-module.exports = { firebaseConfig };
+module.exports = { bucket };
