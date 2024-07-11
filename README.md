@@ -27,10 +27,10 @@ BackEnd réalisé sous ce modèle (diagramme de classe)
 Pour démarrer avec ce projet, suivez les étapes ci-dessous :
 
 1. Installez Node.js et npm sur votre machine.
-2. Clonez le dépôt : `git clone https://github.com/DALGONA-MASTERS/server.git`
-3. Installez les dépendances : `npm install`
-4. Exécutez le serveur de développement : `npm start`
-5. Ouvrez votre navigateur et visitez `http://localhost:8042` pour accéder à l'application.
-6. Ou accédez directement au backend déployé sur : `https://server-vgg7.onrender.com`
+2. Clonez le dépôt : git clone https://github.com/DALGONA-MASTERS/server.git
+3. Installez les dépendances : npm install
+4. Exécutez le serveur de développement : npm start
+5. Ouvrez votre navigateur et visitez http://localhost:8042 pour accéder à l'application.
+6. Ou accédez directement au backend déployé sur : https://server-vgg7.onrender.com
 
 ---
