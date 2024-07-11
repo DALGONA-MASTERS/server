@@ -544,25 +544,24 @@ exports.getAllEventsThisMonth = async (req, res) => {
 //  search an event
 
 exports.searchEvents = async (req, res) => {
-  const searchText = req.query.searchText;
-  try {
-    const events = await Event.find({
-      $text: { $search: searchText },
-    })
-      .populate("participants", "name")
-      .sort({ participantsNumber: -1 });
-    if (events.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Aucun événement trouvé pour cette recherche." });
+    const searchText = req.query.searchText;
+    try {
+      const events = await Event.find({
+        $text: { $search: searchText },
+      })
+        .populate("participants", "name")
+        .sort({ participantsNumber: -1 });
+      if (events.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Aucun événement trouvé pour cette recherche." });
+      }
+      res.json(events);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Erreur Serveur");
     }
-    res.json(events);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Erreur Serveur");
-  }
 };
-
 
 exports.getPostsForEvent = async (req, res) => {
     const eventId = req.params.id;

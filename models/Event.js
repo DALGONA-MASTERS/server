@@ -1,3 +1,4 @@
+ 
 const { Schema, model } = require("mongoose");
 
 const eventSchema = new Schema({
@@ -16,7 +17,7 @@ const eventSchema = new Schema({
   description: {
     type: String,
     required: true,
-  },  
+  },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -73,5 +74,6 @@ const eventSchema = new Schema({
     },
   ],
 });
+eventSchema.index({ title: "text" });
 
 module.exports = model("Event", eventSchema);
