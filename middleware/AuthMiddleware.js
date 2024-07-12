@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 //middleware to check for user token
 exports.checkUser = (req, res, next) => {
-  const token = req.cookies ? req.cookies.jwt : null;
+  const token = req.headers['jwt'] ? req.headers['jwt'] : null;
   if (!token) {
     return res
       .status(401)
